@@ -1,0 +1,17 @@
+{
+  "name": "streaming_video",
+  "version": "1.0.0",
+  "description": "Creacion de video streaming express, sockets io y api javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Express",
+    "Sockets",
+    "io",
+    "Canvas"
+  ],
+  "author": "John Alexander Jimenez Morales",
+  "license": "ISC"
+}
