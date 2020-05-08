@@ -21,8 +21,10 @@ app.get('/', (req, res)=>{
 
 io.on('connection', (socket) => {
 
-    socket.on('stream', function(image){
+   socket.on('streaming', (image) => {
+       io.emit('play stream', image);
+     //  console.log(image);
 
-        socket.broadcast.emit('stream', image);
-    });
+   })
+
 })

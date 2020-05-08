@@ -1,56 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server de Streaming</title>
+	<meta charset="UTF-8">
+	<title>Servidor de Streaming</title>
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
-    <h1>Server de streaming</h1>
-    <p>
-        Esta pagina transmite en tiempo real el streaming
-        de la camara Web
-    </p>
-    <video id="video"
-           width="1280" 
-           height="720"></video>
-    <canvas id="canvas"></canvas>
+	<h1>Servidor de Streaming</h1>
+	<p>
+		Esta página transmite en tiempo real el streaming de la cámara web
+	</p>
+	<video id="video"></video>
+	<canvas id="canvas" width="1280" height="720"></canvas>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		(function (d, w, n, io){
+			'use strict'
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        (function (d, io){
+			var io = io(),
+				startCamera = false,
+				video = d.querySelector('#video'),
+				canvas = d.querySelector('#canvas'),
+				context = canvas.getContext('2d')
 
-            'use strict'
+			n.streaming = (
+				n.getUserMedia ||
+				n.webkitGetUserMedia ||
+				n.mozGetUserMedia ||
+				n.msGetUserMedia
+			)
 
-            var io = io(), 
-                startCamera = false,
-                video = d.querySelector('#video'),
-                canvas = d.querySelector('#canvas'),
-                context = canvas.getContext('2d');
+			n.streaming({
+				video : true,
+				audio : false
+			}, function (stream){
+                console.log('ingreso por aqui');
+				startCamera = true
+                //video.src = w.URL.createObjectURL(stream)
+                video.srcObject = stream
+			}, function (err){
+				alert('error al acceder a la camara web: ' + err)
+			})
 
-             navigator.streaming = (
-                    navigator.getUserMedia ||
-                    navigator.webkitGetUserMedia ||
-                    navigator.mozGetUserMedia ||
-                    navigator.msGetuserMedia
-                ) 
+			w.playVideo = (function (cb){
+				return w.requestAnimationFrame ||
+					w.webkitRequestAnimationFrame ||
+					w.mozRequestAnimationFrame ||
+					w.msRequestAnimationFrame ||
+					function (cb) {
+						w.setTimeout(cb, 1000/100)
+					}
+			})()
 
-            navigator.streaming({
-                video : true,
-                audio : false
-            }, 
-            function(stream){
-                startCamera = true
-                video.srcObject = stream;
-                video.onloadedmetadata = function(e){
-                    video.play()
-                }              
+			function streamVideo(context, canvas, video)
+			{
+				var outputStream = canvas.toDataURL('image/jpeg', .3)
+				context.drawImage(video, 0, 0)
 
-            }, function(err){
-                alert('Error al acceder a la camara web' + err);
-            })
-        })(document, io)
-    </script> 
+				if(startCamera)
+					io.emit('streaming', outputStream)
+
+				playVideo(function (){
+					streamVideo(context, canvas, video)
+				})
+			}
+
+			w.addEventListener('load', function (){
+                console.log('evento listener');
+                video.autoplay = true
+                console.log('variable startCamera : '+startCamera);
+				video.style.display = 'none'
+				streamVideo(context, canvas, video)
+			})
+		})(document, window, navigator, io)
+	</script>
 </body>
 </html>

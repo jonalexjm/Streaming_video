@@ -1,62 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cliente de Streaming</title>
+	<meta charset="UTF-8">
+	<title>Cliente de Streaming</title>
 </head>
 <body>
-    <h1>Cliente de streaming</h1>
+	<h1>Cliente de Streaming</h1>
+	<p>
+		Esta página recibe en tiempo real el streaming de la cámara web del usuario que genera la transmisión
+	</p>
+	<img id="streaming" width="1280" height="720">
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		(function (d, io){
+			'use strict'
 
-    
-    <p>
-        Esta pagina transmite en tiempo real el streaming
-        de la camara Web
-    </p>
-    <video id="video"
-           width="1280" 
-           height="720"></video>
-    <canvas id="canvas"></canvas>
+			var io = io()
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        (function (d, io){
-
-            'use strict'
-
-            var io = io(), 
-                startCamera = false,
-                video = d.querySelector('#video'),
-                canvas = d.querySelector('#canvas'),
-                context = canvas.getContext('2d');
-
-             navigator.streaming = (
-                    navigator.getUserMedia ||
-                    navigator.webkitGetUserMedia ||
-                    navigator.mozGetUserMedia ||
-                    navigator.msGetuserMedia
-                ) 
-
-            navigator.streaming({
-                video : true,
-                audio : false
-            }, 
-            function(stream){
-                startCamera = true
-                video.srcObject = stream;
-                video.onloadedmetadata = function(e){
-
-                    video.play()
-
-                }               
-
-
-            }, function(err){
-                alert('Error al acceder a la camara web' + err);
-
-            })
-        })(document, io)
-    </script> 
-
+			io.on('play stream', function (image){
+				d.querySelector('#streaming').src = image
+			})
+		})(document, io)
+	</script>
 </body>
 </html>
